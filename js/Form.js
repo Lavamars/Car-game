@@ -1,6 +1,6 @@
 class Form {
   constructor() {
-    this.input = createInput("").attribute("placeholder", 'Enter your name' );
+    this.input = createInput("").attribute("placeholder", "Enter your name");
     this.playButton = createButton("Play");
     this.titleImg = createImg("./assets/title.png", "game title");
     this.greeting = createElement("h2");
@@ -15,7 +15,9 @@ class Form {
 
   setElementsStyle() {
     this.titleImg.class("gameTitle");
-   
+    this.input.class("customInput");
+    this.playButton.class("customButton");
+    this.greeting.class("greeting");
   }
 
   //BP
@@ -34,12 +36,12 @@ class Form {
       Hello ${this.input.value()}
       </br>wait for another player to join...`;
       this.greeting.html(message);
-      playerCount+=1
-      player.name= this.input.value()
-      player.index=playerCount
-      player.updateCount(playerCount)
-      //player.addPlayer();
-     // player.getDistance(); //BP
+      playerCount += 1;
+      player.name = this.input.value();
+      player.index = playerCount;
+      player.addPlayer();
+      player.updateCount(playerCount); // BP
+      player.getDistance(); //BP
     });
   }
 

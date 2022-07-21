@@ -1,23 +1,23 @@
 class Game {
   constructor() {}
   //BP
-  getState(){
-   var  gameStateRef= database.ref("gameState")
-   gameStateRef.on("value", function(data){
-    gameState = data.val()
-   })
+  getState() {
+    var gameStateRef = database.ref("gameState");
+    gameStateRef.on("value", function(data) {
+      gameState = data.val();
+    });
   }
-
-  update(state){
+  //BP
+  update(state) {
     database.ref("/").update({
-      gameState:state
-    })
-
+      gameState: state
+    });
   }
 
   // TA
   start() {
-  
+    player = new Player();
+    playerCount = player.getCount();
 
     form = new Form();
     form.display();
@@ -33,7 +33,6 @@ class Game {
     cars = [car1, car2];
   }
 
-
   //BP
   handleElements() {
     form.hide();
@@ -45,6 +44,29 @@ class Game {
   play() {
     this.handleElements();
 
+    Player.getPlayersInfo();
+    if (allPlayers !== undefined){
+
+      image(track,0,-height*5,width,height*6)
+      var index = 0;
+      for(var plr in allPlayers){
+        index=index+1
+        var x= allPlayers[plr].positionX
+        var y= height-allPlayers[plr].positionY
+        cars[index-1].position.x = x;
+        cars[index-1].position.y= y
+      }
+       
+
+
+
+    }
+
+    if (keyIsDown(UP_ARROW)){
+      player.positionY+= 10
+      player.update()
+    }
+   
       drawSprites();
     }
   }
