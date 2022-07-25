@@ -39,9 +39,9 @@ class Form {
       playerCount += 1;
       player.name = this.input.value();
       player.index = playerCount;
-      player.addPlayer();
+    player.addPlayer();//aa
       player.updateCount(playerCount); // BP
-      player.getDistance(); //BP
+     player.getDistance(); //aa
     });
   }
 

@@ -16,11 +16,17 @@ class Game {
 
   // TA
   start() {
+    
     player = new Player();
     playerCount = player.getCount();
 
     form = new Form();
     form.display();
+    
+    fuels= new Group()
+    powerCoins = new Group()
+    this.addSprites(fuels,4,fuelImage,0.02)
+    this.addSprites(powerCoins,18,powerCoinImage,0.09)
 
     car1 = createSprite(width / 2 - 50, height - 100);
     car1.addImage("car1", car1_img);
@@ -44,30 +50,85 @@ class Game {
   play() {
     this.handleElements();
 
-    Player.getPlayersInfo();
-    if (allPlayers !== undefined){
+    Player.getPlayersInfo(); //added
 
-      image(track,0,-height*5,width,height*6)
+    if (allPlayers !== undefined) {
+      image(track, 0, -height * 5, width, height * 6);
+
+      //index of the array
       var index = 0;
-      for(var plr in allPlayers){
-        index=index+1
-        var x= allPlayers[plr].positionX
-        var y= height-allPlayers[plr].positionY
-        cars[index-1].position.x = x;
-        cars[index-1].position.y= y
+      for (var plr in allPlayers) {
+        //use data form the database to display the cars in x and y direction
+        var x = allPlayers[plr].positionX;
+        var y = height - allPlayers[plr].positionY;
+
+        cars[index].position.x = x;
+        cars[index].position.y = y;
+
+        //add 1 to the index for every loop
+        index = index + 1;
+
+        if (index === player.index) {
+          stroke(10);
+          fill("red");
+          ellipse(x, y, 60, 60);
+        }
       }
-       
 
+      // handling keyboard events
+      if (keyIsDown(UP_ARROW)) {
+        player.positionY += 10;
+        player.update();
+      }
 
-
-    }
-
-    if (keyIsDown(UP_ARROW)){
-      player.positionY+= 10
-      player.update()
-    }
-   
       drawSprites();
     }
   }
 
+  addSprites(spriteGroup,numberOfSprites, spriteImage, scale){
+
+    for(var i=0;i<numberOfSprites;i++){
+
+        x=random(width/2+150,width/2-150)
+        y=random(-height*4.5,height-400)
+        
+        var sprite= createSprite(x,y)
+        sprite.addImage('sprite',spriteImage)
+        
+        sprite.scale=scale
+        spriteGroup.add(sprite)
+    }
+  }
+
+
+  handleFuel(index){
+    cars[index-1].overlap(fuels, function(collector,collected){
+
+      player.fuel=185
+      collected.remove()
+  })
+
+
+  }
+
+  handlePowerCoins(index){
+    cars[index-1].overlap(powerCoins, function(collector, collected){
+      player.score+=21
+      player.update()
+      collected.remove()
+    })
+  
+
+
+  }
+
+
+
+
+
+  
+  
+
+
+
+}

@@ -46,6 +46,7 @@ class Player {
     });
   }
 
+  //SA
   update() {
     var playerIndex = "players/player" + this.index;
     database.ref(playerIndex).update({
@@ -55,24 +56,11 @@ class Player {
      });
   }
 
-
-
-  static getPlayersInfo(){
-
-    var playerInfoRef= database.ref("players")
-    playerInfoRef.on("value", data=>{
-
-      allPlayers=dat.val()
-
-
-
-
-    })
-
-
+  //Bp
+  static getPlayersInfo() {
+    var playerInfoRef = database.ref("players");
+    playerInfoRef.on("value", data => {
+      allPlayers = data.val();
+    });
   }
-
-}
-
-
-  
+} 
