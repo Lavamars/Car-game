@@ -2,11 +2,9 @@ var canvas;
 var backgroundImage, bgImg, car1_img, car2_img, track;
 var database, gameState;
 var form, player, playerCount;
-var allPlayers, car1, car2;
+var allPlayers, car1, car2,fuels, powerCoins;
 var cars = [];
 var fuelImage, powerCoinImage;
-
-
 //BP
 function preload() {
   backgroundImage = loadImage("./assets/background.png");
