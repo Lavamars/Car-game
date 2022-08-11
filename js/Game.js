@@ -1,27 +1,12 @@
 class Game {
   constructor() {
+    this.resetTitle = createElement("h2");
+    this.resetButton = createButton("");
     
-    this.resetTitle = createElement('h2')
-    this.resetButton = createButton('')
-  }
+    this.leadeboardTitle = createElement("h2");
 
-  handleResetButton(){
-
-    this.resetButton.mousePressed(()=>{
-
-      database.ref('/').set({
-        
-        carsAtEnd : 0,
-        gameState: 0, 
-        playerCount: 0,
-        players: {}
-        
-
-      })
-      
-      window.location.reload()
-      })
-
+    this.leader1 = createElement("h2");
+    this.leader2 = createElement("h2");
   }
 
   getState() {
@@ -84,21 +69,32 @@ class Game {
     form.hide();
     form.titleImg.position(40, 50);
     form.titleImg.class("gameTitleAfterEffect");
-    this.resetTitle.html('Reset game ')
-    this.resetTitle.class('resetText')
-    this.resetTitle.position(width/2+200,40)
-    this.resetButton.class('resetButton')
-    this.resetButton.position(width/2+230,100)
+    this.resetTitle.html("Reset Game");
+    this.resetTitle.class("resetText");
+    this.resetTitle.position(width / 2 + 200, 40);
+
+    this.resetButton.class("resetButton");
+    this.resetButton.position(width / 2 + 230, 100);
+    this.leadeboardTitle.html("Leaderboard");
+    this.leadeboardTitle.class("resetText");
+    this.leadeboardTitle.position(width / 3 - 60, 40);
+
+    this.leader1.class("leadersText");
+    this.leader1.position(width / 3 - 50, 80);
+
+    this.leader2.class("leadersText");
+    this.leader2.position(width / 3 - 50, 130);
   }
 
   play() {
     this.handleElements();
-    this.handleResetButton()
-    this.handlePlayerControls()
+    this.handleResetButton();
     Player.getPlayersInfo();
+    player.getCarsAtEnd();
 
     if (allPlayers !== undefined) {
       image(track, 0, -height * 5, width, height * 6);
+      this.showLeaderboard();
 
       //index of the array
       var index = 0;
@@ -130,7 +126,20 @@ class Game {
       }
 
       // handling keyboard events
-    
+      
+      
+      this.handlePlayerControls();
+      const Finishline = height*6 -100
+      if (player.positionY > Finishline){
+
+        gameState = 2
+        player.rank=player.rank+1
+        Player.updateCarsAtEnd(player.rank)
+        player.update()
+        this.showRank()
+  
+
+      }
 
       drawSprites();
     }
@@ -156,32 +165,92 @@ class Game {
     });
   }
 
-  handlePlayerControls(){
+handleResetButton() {
+  this.resetButton.mousePressed(() => {
+    database.ref("/").set({
+      playerCount: 0,
+      gameState: 0,
+      players: {}
+    });
+    window.location.reload();
+  });
+}
+showLeaderboard() {
+  var leader1, leader2;
+  var players = Object.values(allPlayers);
+  if (
+    (players[0].rank === 0 && players[1].rank === 0) ||
+    players[0].rank === 1
+  ) {
+    // &emsp;    This tag is used for displaying four spaces.
+    leader1 =
+      players[0].rank +
+      "&emsp;" +
+      players[0].name +
+      "&emsp;" +
+      players[0].score;
 
-    if (keyIsDown(UP_ARROW) || keyIsDown('W') ) {
-      player.positionY += 10;
-      player.update();
-    }
-
-    
-    if (keyIsDown(DOWN_ARROW) || keyIsDown('A') ) {
-      player.positionY -= 10;
-      player.update();
-    }
-
-    if (keyIsDown(LEFT_ARROW) && player.positionX> width/3-50 || keyIsDown('S')  && player.positionX> width/3-50 ) {
-      player.positionX -= 5;
-      player.update();
-    }
-
-    
-    if (keyIsDown(RIGHT_ARROW) && player.positionX< width/2+200 || keyIsDown('D')  && player.positionX< width/2+200) {
-      player.positionX += 5;
-      player.update();
-    }
-
-    
+    leader2 =
+      players[1].rank +
+      "&emsp;" +
+      players[1].name +
+      "&emsp;" +
+      players[1].score;
   }
+
+  if (players[1].rank === 1) {
+    leader1 =
+      players[1].rank +
+      "&emsp;" +
+      players[1].name +
+      "&emsp;" +
+      players[1].score;
+
+    leader2 =
+      players[0].rank +
+      "&emsp;" +
+      players[0].name +
+      "&emsp;" +
+      players[0].score;
+  }
+
+  this.leader1.html(leader1);
+  this.leader2.html(leader2);
+}
+
+handlePlayerControls() {
+  if (keyIsDown(UP_ARROW)) {
+    player.positionY += 10;
+    player.update();
+  }
+
+  if (keyIsDown(LEFT_ARROW) && player.positionX > width / 3 - 50) {
+    player.positionX -= 5;
+    player.update();
+  }
+
+  if (keyIsDown(RIGHT_ARROW) && player.positionX < width / 2 + 300) {
+    player.positionX += 5;
+    player.update();
+  }
+}
+
+
+showRank(){
+
+  swal({
+    title: `Awesome! ${"\n"} Your rank: ${player.rank}`,
+    text: "Good job!",
+    imageUrl: "https://raw.githubusercontent.com/vishalgaddam873/p5-multiplayer-car-race-game/master/assets/cup.png",
+    imageSize:"100x100",
+    confirmButtonText:"okay"
+
+  });
+
+}
+
 
 
 }
+
+
