@@ -4,9 +4,10 @@ class Game {
     this.resetButton = createButton("");
     
     this.leadeboardTitle = createElement("h2");
-    this.playerMoving = false
+
     this.leader1 = createElement("h2");
     this.leader2 = createElement("h2");
+    this.playerMoving = false;
   }
 
   getState() {
@@ -38,25 +39,58 @@ class Game {
 
     cars = [car1, car2];
 
-    // C38 TA
+    
     fuels = new Group();
     powerCoins = new Group();
+    obstacle1 = new Group(); 
+    obstacle2 = new Group()
+    var obstacle2Positions = [
+      {x:width/2+250,y:height-800,image: obstacle2Image},
+      {x:width/2-180,y:height-2300,image: obstacle2Image},
+      {x:width/2,y:height-2800,image: obstacle2Image},
+      {x:width/2+180,y:height-3300,image: obstacle2Image},
+      {x:width/2+250,y:height-3800,image: obstacle2Image},
+      {x:width/2+250,y:height-4800,image: obstacle2Image},
+      {x:width/2-180,y:height-5500,image: obstacle2Image},
+    ]
+    var obstacle1Positions = [
+      { x: width / 2 - 150, y: height - 1300, image: obstacle1Image },
+      { x: width / 2 + 250, y: height - 1800, image: obstacle1Image },
+      { x: width / 2 - 180, y: height - 3300, image: obstacle1Image },
+     
+      { x: width / 2 - 150, y: height - 4300, image: obstacle1Image },
+      { x: width / 2, y: height - 5300, image: obstacle1Image },
+    ];
 
+  
     // Adding fuel sprite in the game
     this.addSprites(fuels, 4, fuelImage, 0.02);
 
     // Adding coin sprite in the game
+    this.addSprites(obstacle2, obstacle2Positions.length, obstacle2Image, 0.04, obstacle2Positions  )
     this.addSprites(powerCoins, 18, powerCoinImage, 0.09);
+    this.addSprites(
+      obstacle1,
+      obstacle1Positions.length,
+      obstacle1Image,
+      0.04,
+      obstacle1Positions
+    );
+    
   }
 
   // C38 TA
-  addSprites(spriteGroup, numberOfSprites, spriteImage, scale) {
+  addSprites(spriteGroup, numberOfSprites, spriteImage, scale, positions = []) {
     for (var i = 0; i < numberOfSprites; i++) {
       var x, y;
-
+      if (positions.length > 0) {
+        x = positions[i].x;
+        y = positions[i].y;
+        spriteImage = positions[i].image;
+      } else {
       x = random(width / 2 + 150, width / 2 - 150);
       y = random(-height * 4.5, height - 400);
-
+      }
       var sprite = createSprite(x, y);
       sprite.addImage("sprite", spriteImage);
 
@@ -91,13 +125,13 @@ class Game {
     this.handleResetButton();
     Player.getPlayersInfo();
     player.getCarsAtEnd();
-    
+
     if (allPlayers !== undefined) {
       image(track, 0, -height * 5, width, height * 6);
       this.showLeaderboard();
-      this.showLife()
-      this.showFuelBar()
-      
+      this.showLife();
+      this.showFuelBar();
+
       //index of the array
       var index = 0;
       for (var plr in allPlayers) {
@@ -125,15 +159,17 @@ class Game {
           camera.position.y = cars[index - 1].position.y;
 
         }
-     }
+      }
+      if (this.playerMoving) {
+        player.positionY += 5;
+        player.update();
+      }
 
-     if (this.playerMoving){
-      player.positionY+=5
-      player.update()
-    }
       // handling keyboard events
-
-
+      if (keyIsDown(UP_ARROW)) {
+        player.positionY += 10;
+        player.update();
+      }
       this.handlePlayerControls();
       const finishLine = height * 6 - 100;
 
@@ -148,6 +184,16 @@ class Game {
       drawSprites();
     }
   }
+  showFuelBar() {
+    push();
+    image(fuelImage, width / 2 - 130, height - player.positionY - 100, 20, 20);
+    fill("white");
+    rect(width / 2 - 100, height - player.positionY - 100, 185, 20);
+    fill("#ffc400");
+    rect(width / 2 - 100, height - player.positionY - 100, player.fuel, 20);
+    noStroke();
+    pop();
+  }
 
   handleFuel(index) {
     // Adding fuel
@@ -157,19 +203,14 @@ class Game {
       //the event
       collected.remove();
     });
+    if (player.fuel > 0 && this.playerMoving) {
+      player.fuel -= 0.3;
+    }
 
-      if (player.fuel>0 && this.playerMoving){
-
-        player.fuel -= 0.3
-     }
-
-     if (player.fuel<=0){
-
-      gameState=2
-      this.gameOver()
-
-     }
-    
+    if (player.fuel <= 0) {
+      gameState = 2;
+      this.gameOver();
+    }
   }
 
   handlePowerCoins(index) {
@@ -191,6 +232,17 @@ handleResetButton() {
     });
     window.location.reload();
   });
+}
+
+showLife() {
+  push();
+  image(lifeImage, width / 2 - 130, height - player.positionY - 400, 20, 20);
+  fill("white");
+  rect(width / 2 - 100, height - player.positionY - 400, 185, 20);
+  fill("#f50057");
+  rect(width / 2 - 100, height - player.positionY - 400, player.life, 20);
+  noStroke();
+  pop();
 }
 showLeaderboard() {
   var leader1, leader2;
@@ -237,24 +289,20 @@ showLeaderboard() {
 
 handlePlayerControls() {
   if (keyIsDown(UP_ARROW)) {
+    this.playerMoving = true; //C40 //SA
+
     player.positionY += 10;
-    player.fuel-=1
     player.update();
-    this.playerMoving = true
   }
 
   if (keyIsDown(LEFT_ARROW) && player.positionX > width / 3 - 50) {
     player.positionX -= 5;
-    //player.positionY += 2
     player.update();
-    //this.playerMoving = true
   }
 
   if (keyIsDown(RIGHT_ARROW) && player.positionX < width / 2 + 300) {
     player.positionX += 5;
-    //player.positionY +=2
     player.update();
-   //this.playerMoving = true
   }
 }
 showRank() {
@@ -265,41 +313,15 @@ showRank() {
       "https://raw.githubusercontent.com/vishalgaddam873/p5-multiplayer-car-race-game/master/assets/cup.png",
     imageSize: "100x100",
     confirmButtonText: "Ok"
-  });
-}
-
-showLife(){
-
-push()
-image(lifeImage, width/2-130, height-player.positionY-400, 20, 20)
-fill('white')
-rect(width/2-100,height-player.positionY-400, 185, 20)
-fill('#f50057')
-rect(width/2-100, height-player.positionY-400, player.life,20)
-noStroke()
-pop()
-}
-
-showFuelBar(){
-
-  push()
-  image(fuelImage, width/2-130, height-player.positionY-100, 20, 20)
-  fill('white')
-  rect(width/2-100,height-player.positionY-100, 185, 20)
-  fill('#f50057')
-  rect(width/2-100, height-player.positionY-100, player.fuel,20)
-  noStroke()
-  pop()
-}
-
-gameOver(){
-
-swal({
-title: `Game over💀`,
-text: `oops! You lost the race`,
-imageUrl: "https://cdn.shopify.com/s/files/1/1061/1924/products/Thumbs_Down_Sign_Emoji_Icon_ios10_grande.png",
-imageSize:"100x100",
-confirmButtonText:"Thanks for playing"
-})
-}
+  });}
+  gameOver() {
+    swal({
+      title: `Game Over`,
+      text: "Oops you lost the race....!!!",
+      imageUrl:
+        "https://cdn.shopify.com/s/files/1/1061/1924/products/Thumbs_Down_Sign_Emoji_Icon_ios10_grande.png",
+      imageSize: "100x100",
+      confirmButtonText: "Thanks For Playing"
+    });
+  }
 }
